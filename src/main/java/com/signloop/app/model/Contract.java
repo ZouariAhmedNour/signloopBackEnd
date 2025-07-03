@@ -1,6 +1,7 @@
 package com.signloop.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long contractId;
 
     private String type;
@@ -21,7 +23,8 @@ public class Contract {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
-    @JsonBackReference(value = "customer-contract") // Correspond à @JsonManagedReference
+
+    @JsonIgnore
     private Customer customer;
 
     public Contract() {

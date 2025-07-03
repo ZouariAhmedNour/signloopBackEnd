@@ -16,6 +16,7 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long customerId;
 
     private String nom;
@@ -23,7 +24,6 @@ public class Customer {
     private LocalDate birthdate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonManagedReference(value = "customer-contract") // Inclut contracts dans la réponse
     private List<Contract> contracts = new ArrayList<>();
 
     public Customer() {
