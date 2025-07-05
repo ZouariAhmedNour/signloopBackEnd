@@ -2,6 +2,12 @@ package com.signloop.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @SpringBootApplication
 public class SignloopApplication {
@@ -10,4 +16,13 @@ public class SignloopApplication {
 		SpringApplication.run(SignloopApplication.class, args);
 	}
 
+
+	@EventListener(ApplicationReadyEvent.class)
+	public void logSwaggerUrl() throws UnknownHostException {
+		String ip = InetAddress.getLocalHost().getHostAddress();
+		System.out.println("\n\n✅ Swagger UI: http://" + ip + ":8080/swagger-ui/index.html\n");
+	}
 }
+
+
+

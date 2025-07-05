@@ -16,7 +16,6 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Long customerId;
 
     private String nom;
