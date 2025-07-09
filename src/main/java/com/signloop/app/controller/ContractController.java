@@ -110,5 +110,6 @@ public class ContractController {
     @DeleteMapping("/{id}")
     public void deleteContract(@PathVariable Long id) {
         contractService.deleteContract(id);
+
     }
 }
