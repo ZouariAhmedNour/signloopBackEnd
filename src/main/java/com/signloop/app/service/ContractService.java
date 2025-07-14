@@ -34,7 +34,7 @@ public class ContractService {
             throw new RuntimeException("Customer is required for a contract");
         }
         Contract saved = contractRepository.save(contract);
-        System.out.println("Saved contract with customer: " + saved.getCustomer()); // Débogage
+        System.out.println("Saved contract with customer: " + saved.getCustomer());
         return saved;
     }
 
