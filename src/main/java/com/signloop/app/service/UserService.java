@@ -6,14 +6,12 @@ import com.signloop.app.model.VerificationToken;
 import com.signloop.app.repository.PasswordResetTokenRepository;
 import com.signloop.app.repository.UserRepository;
 import com.signloop.app.repository.VerificationTokenRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
+import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
 
@@ -35,6 +33,7 @@ public class UserService {
     /**
      * Enregistre un utilisateur avec mot de passe chiffré et email non vérifié
      */
+    @Transactional(readOnly = true)
     public User getByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec cet email: " + email));
@@ -83,8 +82,8 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Un utilisateur avec cet email existe déjà.");
         }
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPassword(user.getPassword());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //user.setPassword(user.getPassword());
         user.setRole("USER");
         user.setEmailVerified(false);
         return userRepository.save(user);

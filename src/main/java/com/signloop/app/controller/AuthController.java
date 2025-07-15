@@ -1,6 +1,7 @@
 package com.signloop.app.controller;
 
 import com.signloop.app.model.User;
+import com.signloop.app.security.JwtService;
 import com.signloop.app.service.EmailService;
 import com.signloop.app.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,16 +23,19 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthController(UserService userService,
                           AuthenticationManager authenticationManager,
                           EmailService emailService,
-                          PasswordEncoder passwordEncoder
+                          PasswordEncoder passwordEncoder,
+                          JwtService jwtService
                           ) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.emailService =  emailService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -38,7 +44,7 @@ public class AuthController {
         String token = userService.createVerificationToken(registered);
         // Ici tu envoies le mail avec le lien contenant le token
 
-        String verificationLink = "http://localhost:8080/api/verify?token=" + token;
+        String verificationLink = "http://192.168.1.103:8080/api/verify?token=" + token;
 
         emailService.sendEmail(
                 user.getEmail(),
@@ -59,30 +65,43 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity
+                    .status(403)
+                    .body("Mauvais email ou mot de passe");
+        }
+
         User user = userService.getByEmail(loginRequest.getEmail());
 
         if (!user.isEmailVerified()) {
             return ResponseEntity
                     .status(403)
-                    .body("Veuillez vérifier votre email avent de se connecter");
+                    .body("Veuillez vérifier votre email avant de vous connecter");
         }
-        return ResponseEntity.ok(user);
 
+        String token = jwtService.generateToken(user.getEmail());
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "user", user
+        ));
     }
+
 
     @PostMapping("/reset-password-request")
     public ResponseEntity<String> requestReset(@RequestParam String email) {
         User user = userService.getByEmail(email);
         String token = userService.createPasswordResetToken(user);
 
-        String resetLink = "http://192.168.1.105:8080/reset-password?token=" + token;
+        String resetLink = "http://192.168.1.103:8080/reset-password?token=" + token;
 
 
         emailService.sendEmail(
@@ -114,7 +133,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Compte déjà vérifié.");
         }
         String token = userService.resendVerificationEmail(user);
-        String verificationLink = "http://192.168.1.105:8080/api/auth/verify?token=" + token;
+        String verificationLink = "http://192.168.1.103:8080/api/auth/verify?token=" + token;
 
         emailService.sendEmail(
                 email,
