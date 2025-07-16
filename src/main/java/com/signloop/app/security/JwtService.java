@@ -12,18 +12,53 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.function.Function;
 
+//@Service
+//public class JwtService {
+//
+//    // Génère automatiquement une clé sécurisée compatible HS256
+//    private final SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+//
+//    public String generateToken(String email) {
+//        return Jwts.builder()
+//                .setSubject(email)
+//                .setIssuedAt(new Date())
+//                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+//                .signWith(KEY)
+//                .compact();
+//    }
+//
+//    public String extractUsername(String token) {
+//        return extractClaim(token, Claims::getSubject);
+//    }
+//
+//    public boolean isTokenValid(String token) {
+//        return extractExpiration(token).after(new Date());
+//    }
+//
+//    private Date extractExpiration(String token) {
+//        return extractClaim(token, Claims::getExpiration);
+//    }
+//
+//    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+//        final Claims claims = Jwts.parserBuilder()
+//                .setSigningKey(KEY)
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody();
+//        return claimsResolver.apply(claims);
+//    }
+//}
 @Service
 public class JwtService {
 
-    // Génère automatiquement une clé sécurisée compatible HS256
-    private final SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final String SECRET_KEY = "ma-super-cle-secrete-ultra-longue-pour-le-jwt-qui-fait-32-caracteres-minimum";
 
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-                .signWith(KEY)
+                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                 .compact();
     }
 
@@ -41,7 +76,7 @@ public class JwtService {
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parserBuilder()
-                .setSigningKey(KEY)
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

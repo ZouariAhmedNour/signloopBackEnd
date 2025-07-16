@@ -1,5 +1,7 @@
 package com.signloop.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -31,5 +33,7 @@ public class User {
     private boolean emailVerified = false;
 
     @OneToMany(mappedBy = "createdBy")
+    //@JsonIgnore
+    @JsonManagedReference(value = "user-contract")
     private List<Contract> contracts;
 }

@@ -1,6 +1,7 @@
 package com.signloop.app.controller;
 
 import com.signloop.app.model.User;
+import com.signloop.app.model.UserDto;
 import com.signloop.app.security.JwtService;
 import com.signloop.app.service.EmailService;
 import com.signloop.app.service.UserService;
@@ -44,7 +45,7 @@ public class AuthController {
         String token = userService.createVerificationToken(registered);
         // Ici tu envoies le mail avec le lien contenant le token
 
-        String verificationLink = "http://192.168.1.103:8080/api/verify?token=" + token;
+        String verificationLink = "http://192.168.1.105:8080/api/verify?token=" + token;
 
         emailService.sendEmail(
                 user.getEmail(),
@@ -89,9 +90,21 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(user.getEmail());
+//        return ResponseEntity.ok(Map.of(
+//                "token", token,
+//                "user", user
+//        )
+//        );
+        UserDto userDto = new UserDto();
+        userDto.setUserId(user.getUserId());
+        userDto.setNom(user.getNom());
+        userDto.setPrenom(user.getPrenom());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole());
+
         return ResponseEntity.ok(Map.of(
                 "token", token,
-                "user", user
+                "user", userDto
         ));
     }
 
@@ -101,7 +114,7 @@ public class AuthController {
         User user = userService.getByEmail(email);
         String token = userService.createPasswordResetToken(user);
 
-        String resetLink = "http://192.168.1.103:8080/reset-password?token=" + token;
+        String resetLink = "http://192.168.1.105:8080/reset-password?token=" + token;
 
 
         emailService.sendEmail(
@@ -133,7 +146,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Compte déjà vérifié.");
         }
         String token = userService.resendVerificationEmail(user);
-        String verificationLink = "http://192.168.1.103:8080/api/auth/verify?token=" + token;
+        String verificationLink = "http://192.168.1.105:8080/api/auth/verify?token=" + token;
 
         emailService.sendEmail(
                 email,

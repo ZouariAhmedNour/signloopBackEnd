@@ -64,6 +64,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -91,12 +92,21 @@ public class ContractController {
 
     @Operation(summary = "Create a new contract", description = "Adds a new contract")
     @ApiResponse(responseCode = "200", description = "Contract created successfully")
+//    @PostMapping
+//    public Contract createContract(@RequestBody Contract contract) {
+//        Contract savedContract = contractService.saveContract(contract);
+//        // Assurer que customer est inclus dans la réponse
+//        return savedContract;
+//    }
     @PostMapping
-    public Contract createContract(@RequestBody Contract contract) {
-        Contract savedContract = contractService.saveContract(contract);
-        // Assurer que customer est inclus dans la réponse
-        return savedContract;
+    public Contract createContract(@RequestBody Contract contract, Principal principal) {
+        String email = principal.getName();
+        Long userId = contractService.getUserIdByEmail(email);
+        return contractService.saveContractWithCreator(contract, userId);
     }
+
+
+
 
     @Operation(summary = "Update a contract", description = "Updates contract information")
     @ApiResponse(responseCode = "200", description = "Contract updated successfully.")

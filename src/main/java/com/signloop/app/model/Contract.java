@@ -44,6 +44,7 @@
 package com.signloop.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -65,11 +66,12 @@ public class Contract {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "customer-contract")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "user_id")
+    @JsonBackReference(value = "user-contract")
     private User createdBy;
 
     @Lob
