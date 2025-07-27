@@ -12,13 +12,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.util.Map;
 
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    @Value("${app.url}")
+    private String appUrl;
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -45,7 +48,7 @@ public class AuthController {
         String token = userService.createVerificationToken(registered);
         // Ici tu envoies le mail avec le lien contenant le token
 
-        String verificationLink = "http://192.168.1.105:8080/api/verify?token=" + token;
+        String verificationLink = appUrl + "/api/verify?token=" + token;
 
         emailService.sendEmail(
                 user.getEmail(),
@@ -114,7 +117,7 @@ public class AuthController {
         User user = userService.getByEmail(email);
         String token = userService.createPasswordResetToken(user);
 
-        String resetLink = "http://192.168.1.105:8080/reset-password?token=" + token;
+        String resetLink = appUrl + "/reset-password?token=" + token;
 
 
         emailService.sendEmail(
@@ -146,7 +149,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Compte déjà vérifié.");
         }
         String token = userService.resendVerificationEmail(user);
-        String verificationLink = "http://192.168.1.105:8080/api/auth/verify?token=" + token;
+        String verificationLink = appUrl + "/api/auth/verify?token=" + token;
 
         emailService.sendEmail(
                 email,
